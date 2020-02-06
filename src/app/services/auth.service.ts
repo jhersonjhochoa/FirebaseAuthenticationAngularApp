@@ -16,7 +16,9 @@ export class AuthService {
     this.getToken();
   }
 
-  logout() { }
+  logout() {
+    localStorage.removeItem('token');
+  }
 
   login( usuario: Usuario ) {
     const authData = {
@@ -50,6 +52,9 @@ export class AuthService {
   private saveToken( idToken: string ){
     this.userToken = idToken;
     localStorage.setItem('token', idToken);
+    let hoy = new Date();
+    hoy.setSeconds(3600);
+    localStorage.setItem('expira', hoy.getTime().toString());
   }
 
   private getToken() {
@@ -58,5 +63,16 @@ export class AuthService {
     } else {
       this.userToken = '';
     }
+  }
+
+  isAuthenticated(): boolean {
+    if ( this.userToken.length < 2 ) {
+      return false;
+    }
+
+    const expira = Number(localStorage.getItem('expira'));
+    const expiraDate = new Date();
+    expiraDate.setTime(expira);
+    return expiraDate > new Date();
   }
 }
